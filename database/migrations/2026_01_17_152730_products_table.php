@@ -16,7 +16,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->text('description');
-            $table->string('image')->nullable();
+            $table->json('image')->nullable();
             $table->decimal('price', 10,2);
             $table->foreignId('categories_id')->constrained()->cascade();
             $table->timestamps();
