@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\Facades\Auth;
 
 class Admin
 {
@@ -21,10 +22,8 @@ class Admin
 
         if(Auth()->user()->role == 'admin') {
             return $next($request);
-        }else{
-            abort(405);
         }
 
-        return $next($request);
+        abort(403);
     }
 }
