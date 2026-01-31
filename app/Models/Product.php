@@ -15,7 +15,7 @@ class Product extends Model
     use Hasfactory,notifiable;
 
     protected $fillable= [
-        'name','description','price','categories_id', 'image'
+        'name','description','price','image','categories_id','is_available'
     ];
 
     protected $casts = [
