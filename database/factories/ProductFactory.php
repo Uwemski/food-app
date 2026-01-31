@@ -34,6 +34,7 @@ class ProductFactory extends Factory
                 'products/1.jpg',
                 'products/2.jpg',
             ]),
+            'is_available' => 'available'
         ];
     }
 }
