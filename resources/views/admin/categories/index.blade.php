@@ -23,7 +23,7 @@
     </thead>
     <tbody>
         @foreach($categories as $category)
-            <tr data-id="{{$category->id}}">
+            <tr id= "category-{{$category->id}}">
                 <td>{{$loop->iteration}}</td>
                 <td>{{$category->name}}</td>
                 <td>{{$category->description}}</td>
@@ -46,8 +46,12 @@
 </table>
     
     <div class="bg-white rounded-lg shadow-md p-6 md:p-8">
-        <form action="" style="display:none" id="categoryEditForm">
+        <form method="POST" style="display:none" id="categoryEditForm">
             @csrf
+            <div>
+                <input type='hidden' name="categoryId" id="categoryId">
+            </div>
+        
             <div>
                 <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
                     Product Name <span class="text-red-500">*</span>
@@ -96,7 +100,7 @@
                                 name="image" 
                                 type="file" 
                                 accept="image/png, image/jpeg, image/jpg"
-                                required
+                                
                                 class="hidden"
                                 />
                             </label>
@@ -123,7 +127,7 @@
                 
             </div>
             <div>
-                <button type='submit'>Edit</button>
+                <button type='submit'>Update</button>
                 <button type='button' onclick='disableForm()'>Clear</button>
             </div>
         </form>
@@ -136,6 +140,7 @@
         console.log('Editing Category Id:', id)
 
         document.getElementById('categoryEditForm').style.display = 'block';
+        const categoryId = document.getElementById('categoryId')
 
         const name = document.getElementById('name')
         const description = document.getElementById('description')
@@ -152,14 +157,14 @@
         .then(response => response.json())
         .then(
             res => {
-              if(res.status) {
-                const category = res.data;
-
-                name.value = category.name;
-                description.value = category.description;
-                is_available.value = category.is_available;
-            }  
-              console.log(data)
+              if(res.success) {
+                    const category = res.data;
+                    categoryId.value = category.id;
+                    name.value = category.name;
+                    description.value = category.description;
+                    is_available.value = category.is_available;
+                }
+              console.log(res)
             }
         )
         .catch(
@@ -170,12 +175,51 @@
         )
     }
 
+    document.getElementById('categoryEditForm').addEventListener('submit', function(e) {
+        e.preventDefault()
+        const categoryId = document.getElementById('categoryId').value
+        const name = document.getElementById('name').value;
+        const description = document.getElementById('description').value
+        const is_available = document.getElementById('is_available').value
+        const messageDiv = document.getElementById('messageDiv')
+
+        const formData = new FormData(this);
+        formData.append('_method', 'PUT')
+
+        fetch(`{{url('/admin/categories/update')}}/${categoryId}`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': '{{csrf_token()}}',
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.success) {
+                messageDiv.innerHTML = `<p class="text-green-600">${data.message}</p>`
+                const row = document.querySelector(`#category-${categoryId}`)
+                if(row) {
+                    const cells = row.querySelectorAll('td')
+                    cells[1].textContent = data.data.name;
+                    cells[2].textContent = data.data.description
+                    cells[3].textContent = data.data.is_available
+                }
+            } else{
+                messageDiv.innerHTML = `<p>${data.error || 'Update failed'}</p>`
+            }
+        })
+        .catch(error=>{
+            // console.error(error)
+            messageDiv.innerHTML = '<p>Something unexpected happened</p>'
+        })
+    })
+
     function disableForm() {
         document.getElementById('categoryEditForm').style.display = 'none'
+        document.getElementById('categoryEditForm').reset()
     }
 
-    document.getElementById('categoryEditForm').addEventListener('submit', function() {
-        const formData = new FormData
-    })
 </script>
 </html>
