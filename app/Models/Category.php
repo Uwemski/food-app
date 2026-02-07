@@ -17,6 +17,6 @@ class Category extends Model
         'name', 
         'description', 
         'image', 
-        'is_available'
+        'is_available',
     ];
 }

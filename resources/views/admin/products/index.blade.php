@@ -11,23 +11,30 @@
 @if(session('succcess'))
     <div class="">{{session('success')}}</div>
 @endif
-<table border='1' class='table table-striped'>
+<table border='1' class='table-auto'>
     <thead>
         <tr>
             <th>S/N</th>
             <th>Name</th>
             <th>Description</th>
             <th>Price</th>
+            <th>Availabilty</th>
             <th>Action</th>
         </tr>
     </thead>
     <tbody>
         @foreach($products as $product)
-            <tr data-id="{{$product->id}}">
+            <tr id="product-{{$product->id}}">
                 <td>{{$loop->iteration}}</td>
                 <td>{{$product->name}}</td>
                 <td>{{$product->description}}</td>
                 <td>{{$product->price}}</td>
+                <td>
+                    <select name="is_available" id="is_available" class="availability">
+                        <option value="available" {{$product->available ? 'selected' : ''}} >Available</option>
+                        <option value="not_available" {{$product->available ? 'selected' : ''}} >Un-Available</option>
+                    </select>
+                </td>
                 <td>
                     <button onclick='editForm({{$product->id}})'>Edit</button>
                 </td>
@@ -46,8 +53,11 @@
 </table>
     
     <div class="bg-white rounded-lg shadow-md p-6 md:p-8">
-        <form action="" style="display:none" id="productEditForm" method='GET'>
+        <form action="" style="display:none" id="productEditForm">
             @csrf
+            <div>
+                <input type="hidden" name="productId" id="productId">
+            </div>
             <div>
                 <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
                     Product Name <span class="text-red-500">*</span>
@@ -131,7 +141,7 @@
             <!-- Is Available Field (Role Dropdown) -->
             <div>
                 <label for="is_available" class="block text-sm font-medium text-gray-700 mb-2">
-                    Category <span class="text-red-500">*</span>
+                    Availability <span class="text-red-500">*</span>
                 </label>
                 <select 
                     id="is_available"
@@ -147,7 +157,25 @@
                 
             </div>
             <div>
-                <button type='submit'>Edit</button>
+                <label for="is_available" class="block text-sm font-medium text-gray-700 mb-2">
+                    Category <span class="text-red-500">*</span>
+                </label>
+                <select 
+                    id="is_available"
+                    name="is_available"
+                    required
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition bg-white"
+                >
+                    <option value="">-- Select Option --</option>
+                    <option value="AVAILABLE">Available</option>
+                    <option value="UN-AVAILABLE">Un-available</option>
+                </select>
+                    <p class="mt-1 text-sm text-gray-500">Select the availability for this product</p>
+                
+            </div>
+
+            <div>
+                <button type='submit'>Update</button>
                 <button type='button' onclick='disableForm()'>Clear</button>
             </div>
         </form>
@@ -159,15 +187,18 @@
     function editForm(id) {
         const form =  document.getElementById('productEditForm');
 
+        console.log('Editing Category Id:', id)
+
         form.style.display = 'block';
         const name = document.getElementById('name')
         const description = document.getElementById('description')
         const price = document.getElementById('price')
         const image = document.getElementById('image')
         const category = document.getElementById('categories_id')
+        const is_available = document.getElementById('is_available')
 
         fetch(`{{url('/admin/products/')}}/${id}`, {
-            method: form.method,
+            method: 'GET',
             headers: {
                 'X-CSRF-TOKEN': '{{csrf_token()}}'
             },
@@ -175,11 +206,12 @@
         .then(response => response.json())
         .then(res => {
             console.log(res)
-            if(res.status) {
+            if(res.success) {
                 const product = res.data
                 name.value = product.name
                 description.value = product.description
                 price.value = product.price
+                is_available.value = product.is_available
 
                 //show image
                 // if(product.image){
@@ -191,6 +223,74 @@
             console.error(error)
         })
     }
+
+    document.getElementById('productEditForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const productId = document.getElementById('productId').value;
+        const name = document.getElementById('name');
+        const description = document.getElementById('description');
+        const price = document.getElementById('price');
+        const is_available = document.getElementById('is_available')
+
+        const formData = new FormData(this)
+        formData.append('_method', 'PUT')
+
+        fetch(`{{url('/admin/products/update')}}/${productId}`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': "{{csrf_token()}}",
+                'Accept': 'Application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.success){
+                console.log('Data sent and updated')
+            }
+        })
+        .catch(error => {
+            console.log(error)
+        })
+    })
+
+    document.querySelectorAll('.availability').forEach(function (select) {
+        select.addEventListener('change', function() {
+            const messageDiv = document.getElementById('messageDiv')
+            let row = this.closest('tr');
+            let productId = row.id.replace('product-', '');
+            let value = this.value
+
+            // console.log(value)
+
+            fetch(`/admin/products/${productId}/availabilty`, {
+                method: 'PATCH',
+                headers: {
+                    'X-CSRF-TOKEN': '{{csrf_token()}}',
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    is_available: value
+                })
+            })
+            .then(response => response.json())
+            .then(res => {
+                let data = res.data;
+                let cells = document.querySelector('td');
+                if(res.success) {
+                    console.log(res);
+                    messageDiv.innerHTML = `<p class="text-green">${data.message}</p>`
+                    cells[5].textContent = res.is_available
+                }else{
+                    messageDiv.innerHTML = `<p class="text-green">${data.message}</p>`
+                }
+            })
+            .catch(error => {
+                console.log(error)
+            })
+        })
+    })
 
     function disableForm()
     {
