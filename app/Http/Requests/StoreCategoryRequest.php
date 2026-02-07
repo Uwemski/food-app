@@ -34,7 +34,7 @@ class StoreCategoryRequest extends FormRequest
 
     public function prepareForValidation()
     {
-        $input = $thid->all();
+        $input = $this->all();
 
         foreach($input as $key => $value){
             if(is_string($input)){
