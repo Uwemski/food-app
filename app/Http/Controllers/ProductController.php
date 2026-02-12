@@ -18,6 +18,13 @@ class ProductController extends Controller
 
     }
 
+    public function guestIndex()
+    {
+        $products = Product::where('is_available', 'available')->get();
+
+        return view('shop.products', compact('products'));
+    }
+
     public function create()
     {
         $categories = Category::all();
