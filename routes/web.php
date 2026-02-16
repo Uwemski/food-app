@@ -67,8 +67,11 @@ Route::get('/admin/products/delete/{id}', [ProductController::class, 'delete'])-
 Route::get('/admin/dashboard', [AdminController::class, 'index'])->middleware(['role:admin']);
 
 Route::post('/cart/{id}', [CartController::class, 'addToCart'])->name('cart.add');
+Route::get('/cart/index', [CartController::class, 'viewCart'])->name('cart.index');
+Route::delete('/cart/delete/{id}', [CartController::class, 'removeItem'])->name('cart.removeItem');
 
+Route::delete('/cart/clear', [CartController::class, 'clearCart'])->name('cart.clear');
 
-Route::get('/shop/products', [ProductController::class, 'guestIndex']);
+Route::get('/shop/products', [ProductController::class, 'guestIndex'])->name('shop.index');
 
 require __DIR__.'/auth.php';

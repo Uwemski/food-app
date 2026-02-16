@@ -3,9 +3,14 @@
         <h2 class="font-semibold text-xl text-gray-800">
             Shop Products
         </h2>
+        
     </x-slot>
 
     <div class="max-w-7xl mx-auto px-4 py-8">
+        <div>
+            <h2 class="font-semibold text-xl text-gray-800"><a href="{{route('cart.index')}}">View Cart</a></h2>
+        </div>
+
         <div>
             @if(session('success'))
                 <p class='text-green-700'>{{session('success')}}</p>

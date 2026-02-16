@@ -32,9 +32,10 @@
 
             <form method="POST" action="{{ route('cart.add', $product->id) }}">
                 @csrf
+                <input type="number" name="quantity" min="1">
                 <button
                     type="submit"
-                    class="bg-green-600 text-dark text-sm px-4 py-2 rounded hover:bg-green-700 transition"
+                    class="bg-transparent hover:bg-red-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
                 >
                     Add to Cart
                 </button>
