@@ -153,7 +153,7 @@
                         </div>
 
                         <!-- Checkout Button -->
-                        <form action="" method="GET" class="mt-8">
+                        <form action="{{route('checkout.index')}}" method="GET" class="mt-8">
                             <button type="submit"
                                     class="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition shadow">
                                 Proceed to Checkout

@@ -5,6 +5,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\CheckoutController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -33,12 +34,12 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::get('/message',[TestController::class, 'index'])->middleware('is_admin');
+// Route::get('/message',[TestController::class, 'index'])->middleware('is_admin');
 
-Route::get('role',[
-   'middleware' => 'Role:editor',
-   'uses' => 'TestController@index',
-]);
+// Route::get('role',[
+//    'middleware' => 'Role:editor',
+//    'uses' => 'TestController@index',
+// ]);
 
 Route::middleware('is_admin')->group(function() {
     Route::get('/test-admin', function() {
@@ -71,6 +72,11 @@ Route::get('/cart/index', [CartController::class, 'viewCart'])->name('cart.index
 Route::delete('/cart/delete/{id}', [CartController::class, 'removeItem'])->name('cart.removeItem');
 
 Route::delete('/cart/clear', [CartController::class, 'clearCart'])->name('cart.clear');
+
+//checkout controller routes [middleware required]
+Route::get('/cart/checkout/index', [CheckoutController::class, 'index'])->name('checkout.index');
+
+Route::post('/cart/checkout/process', [CheckoutController::class, 'processCheckout'])->name('cart.checkout.process');
 
 Route::get('/shop/products', [ProductController::class, 'guestIndex'])->name('shop.index');
 
